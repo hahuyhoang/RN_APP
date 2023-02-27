@@ -11,24 +11,89 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 
 import { LineChart } from "react-native-chart-kit";
-import {
-  Defs,
-  G,
-  Path,
-  Polyline,
-  Svg,
-  TextPath,
-  TSpan,
-} from "react-native-svg";
-import * as d3 from "d3";
+import { data } from "../../data.json";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const Home = () => {
+  const [timeframe, setTimeframe] = useState("ALL");
+  const [dataType, setDataType] = useState("data");
+  const [price, setPrice] = useState(11943);
+  const [activeCategory, setActiveCategory] = useState(0);
+
+  const [chartData, setChartData] = useState({
+    datasets: [
+      {
+        data: [10, 14, 8, 6, 6, 9],
+        color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+        strokeWidth: 2,
+      },
+    ],
+  });
+
+  const generateFakeData = (timeframe, dataType) => {
+    const labels = [];
+    const data = [];
+
+    switch (timeframe) {
+      case "D":
+        for (let i = 0; i < 24; i++) {
+          labels.push(`${i}:00`);
+          data.push(Math.floor(Math.random() * 14));
+        }
+        break;
+      case "W":
+        for (let i = 0; i < 7; i++) {
+          labels.push(`Day ${i + 1}`);
+          data.push(Math.floor(Math.random() * 14));
+        }
+        break;
+      case "M":
+        for (let i = 0; i < 31; i++) {
+          labels.push(`Day ${i + 1}`);
+          data.push(Math.floor(Math.random() * 14));
+        }
+        break;
+      case "Y":
+        for (let i = 0; i < 12; i++) {
+          labels.push(`Month ${i + 1}`);
+          data.push(Math.floor(Math.random() * 14));
+        }
+        break;
+      case "ALL":
+        for (let i = 0; i < 5; i++) {
+          labels.push(`Year ${i + 1}`);
+          data.push(Math.floor(Math.random() * 14));
+        }
+        break;
+      default:
+        break;
+    }
+
+    if (dataType === "price") {
+      data.forEach((value, index, array) => {
+        array[index] = value * 14;
+      });
+    }
+    return {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+          strokeWidth: 2,
+        },
+      ],
+    };
+  };
+  const handleButtonPress = () => {
+    const newData = generateFakeData(timeframe, dataType);
+    setChartData(newData);
+  };
   const customData = [
     {
       id: 1,
@@ -79,10 +144,76 @@ const Home = () => {
       </View>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.main}>
         {/* chart */}
-        <View style={styles.chartView} className="bg-white">
-          <View className="items-center">
-            {/* miss */}
-            <Text>MISS</Text>
+        <View className="bg-white mb-3">
+          <View>
+            <LineChart
+              data={chartData}
+              onDataPointClick={({ index }) => {
+                console.log("dada");
+              }}
+              width={Dimensions.get("window").width * (1.24) } // from react-native
+              height={200}
+              withVerticalLabels={false}
+              withHorizontalLabels={true}
+              withHorizontalLines={false}
+              withVerticalLines={false}
+              // horizontalLabelRotation={
+              chartConfig={{
+                backgroundGradientFrom: "#fff",
+                yAxis: { visible: false },
+                grid: { visible: false },
+                backgroundGradientTo: "#fff",
+                decimalPlaces: 0,
+                color: (opacity = 255) => `rgba(0, 2, 5, ${opacity})`,
+                withDots: false,
+                propsForDots: {
+                  r: "",
+                  strokeWidth: "2",
+                },
+              }}
+              bezier
+              style={{
+                marginRight: 10,
+                alignItems: 'center',
+                
+              }}
+            />
+            <View className= "absolute right-1">
+              <Text className="font-medium text-xs pb-2 pt-6 text-gray-400">19K</Text>
+              <Text className="font-medium text-xs pb-2 text-gray-400">18K</Text>
+              <Text className="font-medium text-xs pb-2 text-gray-400">16K</Text>
+              <Text className="font-medium text-xs pb-2 text-gray-400">14K</Text>
+              <Text className="font-medium text-xs pb-2 text-gray-400">12K</Text>
+              <Text className="font-medium text-xs pb-2 text-gray-400">1K</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "space-between",
+                paddingHorizontal: 5,
+                marginBottom: 10
+              }}
+            >
+              <TouchableOpacity onPress={handleButtonPress} style={styles.btn}>
+                <Text style={{fontWeight: '600'}}>1D</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleButtonPress} style={styles.btn}>
+                <Text style={{fontWeight: '600'}}>1W</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleButtonPress} style={styles.btn}>
+                <Text style={{fontWeight: '600'}}>1M</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleButtonPress} style={styles.btn}>
+                <Text style={{fontWeight: '600'}}>3M</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleButtonPress} style={styles.btn}>
+                <Text style={{fontWeight: '600'}}>1Y</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleButtonPress} style={styles.btn}>
+                <Text style={{fontWeight: '600'}}>ALL</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         {/* cash */}
@@ -139,5 +270,68 @@ const styles = StyleSheet.create({
     // marginTop: 10,
     height: windowHeight / 2.5,
     marginBottom: 10,
+  },
+  wrap: {
+    height: "100%",
+    width: "100%",
+    backgroundColor: "#F4F6F9",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  listItem: {
+    marginTop: 20,
+    height: 500,
+    width: "100%",
+    backgroundColor: "#FFF",
+  },
+  title: {
+    height: 60,
+    justifyContent: "center",
+    borderBottomWidth: 0.5,
+    borderColor: "#ccc",
+    paddingLeft: 10,
+  },
+  item: {
+    height: 70,
+    borderBottomWidth: 0.5,
+    borderColor: "#ccc",
+    paddingLeft: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  sty_title: {
+    fontWeight: "500",
+    fontSize: 16,
+    color: "#000",
+  },
+  img: {
+    width: 45,
+    height: 45,
+    resizeMode: "contain",
+    borderRadius: 22,
+  },
+  item_title: {
+    justifyContent: "center",
+    paddingLeft: 20,
+  },
+  item_name: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#808F9D",
+  },
+  item_text: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  btn: {
+    width: "14%",
+    height: 35,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#B3B7BD",
+    borderRadius: 10,
   },
 });
