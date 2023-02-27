@@ -71,7 +71,6 @@ const Home = () => {
     },
   ];
 
- 
   return (
     <SafeAreaView style={styles.container}>
       {/* text header */}
@@ -82,7 +81,8 @@ const Home = () => {
         {/* chart */}
         <View style={styles.chartView} className="bg-white">
           <View className="items-center">
-  
+            {/* miss */}
+            <Text>MISS</Text>
           </View>
         </View>
         {/* cash */}

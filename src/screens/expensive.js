@@ -80,6 +80,7 @@ const Expensive = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.main}>
         {/* chart */}
         <View style={styles.chartView} className="bg-white">
+          <Text>Miss</Text>
           <View className="absolute flex-row bottom-0 justify-between ">
             {customData.map((item) => (
               <>
